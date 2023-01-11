@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Weather App</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <div id="container">
+    <h1>Weather App</h1>
+    <form>
+      <label>Enter city:</label>
+      <input type="text" id="city" placeholder="e.g. London">
+      <button type="submit" id="submit">Get Weather</button>
+    </form>
+    <div id="weather"></div>
+  </div>
+  <script>
+    // API Key from OpenWeatherMap( https://home.openweathermap.org/ )
+    const apiKey = "58d7e4823ccf8513586f442ae4dd4a9a";
+    const submit = document.getElementById("submit");
+    const city = document.getElementById("city");
+    const weather = document.getElementById("weather");
+    submit.addEventListener("click", (e) => {
+      e.preventDefault();
+      weather.innerHTML = '<div class="lds-ring"><div></div><div></div><div></div><div></div></div>';
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city.value}&appid=${apiKey}`)
+        .then(response => {
+          if(response.ok) {
+            return response.json();
+          } else {
+            throw new Error(response.statusText);
+          }
+        })
+        .then(data => {
+          weather.innerHTML = `
+            <h2>Weather for: ${data.name}, ${data.sys.country}</h2>
+            <p>Temperature: ${data.main.temp/10} &#8451;</p>
+            <p>Humidity: ${data.main.humidity}%</p>
+            <p>Wind Speed: ${data.wind.speed} m/s</p>
+            <p>Weather: ${data.weather[0].main}</p>
+            <p>Pressure: ${data.main.pressure} hPa</p>
+            <p>Sunrise: ${new Date(data.sys.sunrise*1000).toLocaleTimeString()}</p>
+            <p>Sunset: ${new Date(data.sys.sunset*1000).toLocaleTimeString()}</p>
+          `;
+        })
+        .catch(error => {
+          weather.innerHTML = `<p class="error">${error.message}</p>`;
+        });
+    });
+  </script>
+</body>
+</html>
